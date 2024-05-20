@@ -7,6 +7,11 @@ tasks:
       - "poetry install"
       - "poetry run python -c 'import os; os.system(\"curl -L https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.11.4 sudo sh\")'"
       - "poetry add dagger-io requests"
+      - "sudo apt-get install -y wget apt-transport-https gnupg"
+      - "wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null"
+      - "echo 'deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main' | sudo tee /etc/apt/sources.list.d/trivy.list"
+      - "sudo apt-get update"
+      - "sudo apt-get install -y trivy"
 
   lint:
     desc: "Run ruff linter"
@@ -17,18 +22,19 @@ tasks:
     desc: "Run tests with coverage"
     cmds:
       - "poetry run pytest --cov=src tests/"
+
+  trivy-scan:
+    desc: "Run Trivy security scan"
+    cmds:
+      - "trivy fs --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed ."
+
+  trivy-fix:
+    desc: "Run Trivy fix"
+    cmds:
+      - "trivy fs --exit-code 0 --severity HIGH,CRITICAL --ignore-unfixed --fix ."
+
 # ???
   # pipeline:
   #   desc: "Run Dagger pipeline"
   #   cmds:
   #     - "poetry run python dagger/pipeline.py"
-
-  trivy-scan:
-    desc: "Run Trivy security scan"
-    cmds:
-      - trivy fs --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed .
-
-  trivy-fix:
-    desc: "Run Trivy fix"
-    cmds:
-      - trivy fs --exit-code 0 --severity HIGH,CRITICAL --ignore-unfixed --fix .
