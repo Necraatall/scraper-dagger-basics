@@ -1,0 +1,34 @@
+version: '3'
+
+tasks:
+  init:
+    desc: "Initialize the project environment"
+    cmds:
+      - "poetry install"
+      - "poetry run python -c 'import os; os.system(\"curl -L https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.11.4 sudo sh\")'"
+      - "poetry add dagger-io requests"
+
+  lint:
+    desc: "Run ruff linter"
+    cmds:
+      - "poetry run ruff src"
+
+  test:
+    desc: "Run tests with coverage"
+    cmds:
+      - "poetry run pytest --cov=src tests/"
+# ???
+  # pipeline:
+  #   desc: "Run Dagger pipeline"
+  #   cmds:
+  #     - "poetry run python dagger/pipeline.py"
+
+  trivy-scan:
+    desc: "Run Trivy security scan"
+    cmds:
+      - trivy fs --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed .
+
+  trivy-fix:
+    desc: "Run Trivy fix"
+    cmds:
+      - trivy fs --exit-code 0 --severity HIGH,CRITICAL --ignore-unfixed --fix .
