@@ -32,9 +32,3 @@ tasks:
     desc: "Run Trivy fix"
     cmds:
       - "trivy fs --exit-code 0 --severity HIGH,CRITICAL --ignore-unfixed --fix ."
-
-# ???
-  # pipeline:
-  #   desc: "Run Dagger pipeline"
-  #   cmds:
-  #     - "poetry run python dagger/pipeline.py"
